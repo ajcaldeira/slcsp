@@ -1,0 +1,45 @@
+name: Continual Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+jobs:
+  static-analysis:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout our source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install Tools
+        run: pip3 install -r requirements.txt
+
+      - name: Run pre-commit
+        run: make pre-commit
+
+  unit-testing:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout our source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install Tools
+        run: pip3 install -r requirements.txt
+
+      - name: Run Unittest
+        run: make unit-test

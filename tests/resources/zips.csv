@@ -1,0 +1,8 @@
+zipcode,state,county_code,name,rate_area
+12345,NY,36001,Schenectady,1
+23456,CA,06001,Alameda,1
+34567,NY,36001,Schenectady,2
+45678,TX,48001,Anderson,1
+56789,TX,48001,Anderson,2
+67890,FL,12001,Alachua,1
+99999,TX,48001,Anderson,3
