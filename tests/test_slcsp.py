@@ -1,6 +1,6 @@
 import os
 import unittest
-from main_project import Slcsp
+from slcsp import Slcsp
 import csv
 
 
@@ -61,9 +61,9 @@ class TestSlcsp(unittest.TestCase):
         Test the read_data method when a file is not found.
         """
         invalid_paths = [
-            ("invalid_zips.csv", "valid_plans.csv", "valid_slcsp.csv"),
-            ("valid_zips.csv", "invalid_plans.csv", "valid_slcsp.csv"),
-            ("valid_zips.csv", "valid_plans.csv", "invalid_slcsp.csv"),
+            ("invalid_zips.csv", self.plans_path, self.slcsp_path),
+            (self.zips_path, "invalid_plans.csv", self.slcsp_path),
+            (self.zips_path, self.plans_path, "invalid_slcsp.csv"),
         ]
 
         for invalid_zips_path, invalid_plans_path, invalid_slcsp_path in invalid_paths:

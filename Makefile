@@ -13,9 +13,9 @@ pre-commit:
 # make unit-test - run unit tests
 .PHONY: unit-test
 unit-test:
-	python -m unittest tests/tests.py
+	python -m unittest tests/test_slcsp.py
 
 # make run-me - run the project
 .PHONY: run-me
 run-me:
-	python main_project.py --zips data/zips.csv --plans data/plans.csv --slcsp data/slcsp.csv --output data/output.csv
+	python main.py --zips data/zips.csv --plans data/plans.csv --slcsp data/slcsp.csv --output data/output.csv

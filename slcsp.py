@@ -1,5 +1,5 @@
 import csv
-import argparse
+from pathlib import Path
 
 
 class Slcsp:
@@ -17,10 +17,10 @@ class Slcsp:
             plans (str): Path to the plans.csv file.
             slcsp (str): Path to the slcsp.csv file.
         """
-        self.zips: str = zips
-        self.plans: str = plans
-        self.slcsp: str = slcsp
-        self.output: str = output
+        self.zips: Path = Path(zips)
+        self.plans: Path = Path(plans)
+        self.slcsp: Path = Path(slcsp)
+        self.output: Path = Path(output)
 
     def read_data(self) -> tuple[dict[str, str], list[tuple[str, float]]]:
         """
@@ -30,47 +30,67 @@ class Slcsp:
             zip_to_rate_area (dict[str, str]): A mapping of zipcodes to rate areas.
             silver_plans (list[tuple[str, float]]): A list of tuples containing the rate area and rate for silver plans.
         """
-        ## First, read the zips.csv file and create a mapping of zipcodes to rate areas.
-        try:
-            with open(self.zips, newline="") as f:
-                reader = csv.DictReader(f)
-                zip_to_rate_area = {
-                    row["zipcode"]: f"{row['state']}{row['rate_area']}"
-                    for row in reader
-                }
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"Error: zips.csv file not found: {e}")
-        except KeyError as e:
-            raise KeyError(f"Error: zips.csv file is missing required columns: {e}")
-
-        ## Next, read the plans.csv file and extract the silver plans.
-        try:
-            with open(self.plans, newline="") as f:
-                reader = csv.DictReader(f)
-                silver_plans = []
-                for row in reader:
-                    if row["metal_level"] == "Silver":
-                        state = row["state"]
-                        rate_area = row["rate_area"]
-                        rate = float(row["rate"])
-                        key = f"{state}{rate_area}"
-                        silver_plans.append((key, rate))
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"Error: plans.csv file not found: {e}")
-        except KeyError as e:
-            raise KeyError(f"Error: plans.csv file is missing required columns {e}")
-
-        ## Finally, read the slcsp.csv file and extract the zipcodes.
-        try:
-            with open(self.slcsp, newline="") as f:
-                reader = csv.DictReader(f)
-                self.slcsp_zipcodes = [row["zipcode"] for row in reader]
-        except FileNotFoundError as e:
-            raise FileNotFoundError(f"Error: plans.csv file not found: {e}")
-        except KeyError as e:
-            raise KeyError(f"Error: plans.csv file is missing required columns {e}")
-
+        zip_to_rate_area = self.read_zips()
+        silver_plans = self.read_plans()
+        self.read_slcsp()
         return zip_to_rate_area, silver_plans
+
+    def read_csv(self, file_path: Path) -> list[dict[str, str]]:
+        """
+        Read a CSV file and return a list of rows as dictionaries.
+
+        Args:
+            file_path (Path): The path to the CSV file.
+
+        Returns:
+            list[dict[str, str]]: A list of rows as dictionaries.
+        """
+        try:
+            with Path.open(file_path, newline="") as f:
+                reader = csv.DictReader(f)
+                return list(reader)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(f"Error: {file_path} file not found: {e}")
+        except KeyError as e:
+            raise KeyError(f"Error: {file_path} file is missing required columns: {e}")
+
+    def read_zips(self) -> dict[str, str]:
+        """
+        Read the zips.csv file and create a mapping of zipcodes to rate areas.
+
+        Returns:
+            zip_to_rate_area (dict[str, str]): A mapping of zipcodes to rate areas.
+        """
+        rows = self.read_csv(self.zips)
+        zip_to_rate_area = {
+            row["zipcode"]: f"{row['state']}{row['rate_area']}" for row in rows
+        }
+        return zip_to_rate_area
+
+    def read_plans(self) -> list[tuple[str, float]]:
+        """
+        Read the plans.csv file and extract the silver plans.
+
+        Returns:
+            silver_plans (list[tuple[str, float]]): A list of tuples containing the rate area and rate for silver plans.
+        """
+        rows = self.read_csv(self.plans)
+        silver_plans = [
+            (f"{row['state']}{row['rate_area']}", float(row["rate"]))
+            for row in rows
+            if row["metal_level"] == "Silver"
+        ]
+        return silver_plans
+
+    def read_slcsp(self) -> None:
+        """
+        Read the slcsp.csv file and extract the zipcodes.
+
+        Returns:
+            None
+        """
+        rows = self.read_csv(self.slcsp)
+        self.slcsp_zipcodes = [row["zipcode"] for row in rows]
 
     def create_rate_area_to_rates(
         self, silver_plans: list[tuple[str, float]]
@@ -151,7 +171,7 @@ class Slcsp:
         Returns:
             None
         """
-        with open(self.output, "w", newline="") as f:
+        with Path.open(self.output, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["zipcode", "rate"])
             for zipcode in self.slcsp_zipcodes:
@@ -174,20 +194,3 @@ class Slcsp:
         slcsp_rates = self.find_second_lowest_rate(rate_area_to_rates)
         zipcode_to_slcsp = self.assign_slcsp_to_zipcodes(zip_to_rate_area, slcsp_rates)
         self.output_results(zipcode_to_slcsp)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Calculate the SLCSP for each zipcode."
-    )
-    parser.add_argument("--zips", type=str, help="Path to the zips.csv file")
-    parser.add_argument("--plans", type=str, help="Path to the plans.csv file")
-    parser.add_argument("--slcsp", type=str, help="Path to the slcsp.csv file")
-    parser.add_argument(
-        "--output", type=str, default="slcsp.csv", help="Path to the output file"
-    )
-
-    args = parser.parse_args()
-
-    runner = Slcsp(args.zips, args.plans, args.slcsp, args.output)
-    runner.run()

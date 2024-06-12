@@ -13,7 +13,7 @@ options:
 ```
 #### Example Command
 ```
-python main_project.py --zips zips.csv --plans plans.csv --slcsp slcsp.csv --output output.csv
+python main.py --zips zips.csv --plans plans.csv --slcsp slcsp.csv --output output.csv
 ```
 
 ## Testing
@@ -21,7 +21,7 @@ python main_project.py --zips zips.csv --plans plans.csv --slcsp slcsp.csv --out
 #### Command
 
 ```
-python -m unittest tests/tests.py
+python -m unittest tests/test_slcsp.py
 ```
 ## How to run with Makefile
 
@@ -29,7 +29,7 @@ python -m unittest tests/tests.py
 ```
 make run-me
 ```
-This uses the command: `python main_project.py --zips data/zips.csv --plans data/plans.csv --slcsp data/slcsp.csv --output data/output.csv`
+This uses the command: `python main.py --zips data/zips.csv --plans data/plans.csv --slcsp data/slcsp.csv --output data/output.csv`
 
 #### Run unit test
 ```
