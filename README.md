@@ -40,3 +40,9 @@ make unit-test
 ```
 make pre-commit
 ```
+
+## Additional Notes
+
+I have not used Poetry in this project - I think it may have been out of scope as I am not using any (excluding pre-commit) external libraries. Poetry is my preference when building projects.
+
+I have opted to use unittest over pytest. However, pytest is my preference. The reason for using unittest is to minimize the number of external libraries as per the instructions. Usually I would like to be using pytest - I find it easier and more convenient. Additionally, coverage is very helpful (which is not included in this project), especially in larger projects.
